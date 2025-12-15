@@ -1,4 +1,4 @@
-# Cadwell documents full review
+# Cadwell API scripts implementations 
 
 ## 1. Data Exploration Script
 ```powershell
@@ -96,7 +96,9 @@ $api.Dispose()
 ```
 
 ## 3. Single Record exploration
-```powershell$api = New-Object -comobject Arc.Api.ArcApi
+```powershell
+
+$api = New-Object -comobject Arc.Api.ArcApi
 $api.Login("username", "password")
 
 # Get specific record (or first record for example)
@@ -177,8 +179,9 @@ $api.Dispose()
 ```
 
 ## 4. Event Analysis and Export
-```
-powershell$api = New-Object -comobject Arc.Api.ArcApi
+```powershell
+
+$api = New-Object -comobject Arc.Api.ArcApi
 $api.Login("username", "password")
 
 $records = $api.GetRecords()
@@ -261,7 +264,9 @@ $api.Dispose()
 ```
 
 ## 5. Impedance Data Analysis
-```powershell$api = New-Object -comobject Arc.Api.ArcApi
+```powershell
+
+$api = New-Object -comobject Arc.Api.ArcApi
 $api.Login("username", "password")
 
 $records = $api.GetRecords()
@@ -311,7 +316,9 @@ $record.Close()
 $api.Dispose()
 ```
 ## 6. Video Data Export
-```powershell$api = New-Object -comobject Arc.Api.ArcApi
+```powershell
+
+$api = New-Object -comobject Arc.Api.ArcApi
 $api.Login("username", "password")
 
 # Check if video feature is licensed
@@ -407,7 +414,9 @@ $api.Dispose()
 ```
 
 ## 7. Waveform Data Extraction
-```powershell$api = New-Object -comobject Arc.Api.ArcApi
+```powershell
+
+$api = New-Object -comobject Arc.Api.ArcApi
 $api.Login("username", "password")
 
 $records = $api.GetRecords()
@@ -505,8 +514,11 @@ Write-Host "CSV export complete: $csvPath"
 $record.Close()
 $api.Dispose()
 ```
+
 ## 8. Documents Management
-```powershell$api = New-Object -comobject Arc.Api.ArcApi
+```powershell
+
+$api = New-Object -comobject Arc.Api.ArcApi
 $api.Login("username", "password")
 
 $records = $api.GetRecords()
@@ -555,7 +567,9 @@ $api.Dispose()
 ```
 
 ## 9. Anonymization and Export Pipeline
-```powershell$api = New-Object -comobject Arc.Api.ArcApi
+```powershell
+
+$api = New-Object -comobject Arc.Api.ArcApi
 $api.Login("username", "password")
 
 # Configuration
@@ -757,7 +771,9 @@ Write-Host "Output Directory: $outputBaseDir"
 $api.Dispose()
 ```
 ## 10. Quality Control and Data Validation
-```powershell$api = New-Object -comobject Arc.Api.ArcApi
+```powershell
+
+$api = New-Object -comobject Arc.Api.ArcApi
 $api.Login("username", "password")
 
 Write-Host "=== DATA QUALITY CONTROL ==="
@@ -843,7 +859,7 @@ Write-Host "Need Review: $(($qualityReport.Count - $goodRecords))"
 $api.Dispose()
 ```
 
-
+---------
 # EEG-EMU (Epilepsy Monitoring Machine)
 
 1. Nicolet NicVue bought by Natus (short recordings). File types are:
