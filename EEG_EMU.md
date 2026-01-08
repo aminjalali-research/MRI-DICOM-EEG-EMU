@@ -108,7 +108,6 @@ $data = $record.Data
 Write-Host "=== DETAILED RECORD ANALYSIS ==="
 Write-Host "Recording Start Time (UTC): " $data.RecordingStartTime
 Write-Host "Recording Duration: " $data.RecordingDuration.TotalHours " hours"
-Write-Host "Time Zone Offset: " $data.RecordingTimeZoneOffset.TotalHours " hours"
 
 # Channel Information
 Write-Host "`n=== CHANNEL INFORMATION ==="
