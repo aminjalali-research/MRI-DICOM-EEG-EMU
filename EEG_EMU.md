@@ -50,11 +50,7 @@ foreach ($record in $records) {
     Write-Host "Record Key: " $record.RecordKey
     Write-Host "Date Recorded: " $record.DateRecorded
     Write-Host "Duration (total): " $record.Duration.TotalHours " hours"
-    Write-Host "Study Status: " $record.StudyStatus
     Write-Host "Study Type: " $record.StudyType.Name
-    Write-Host "Data Acquisition Machine: " $record.DataAcquisitionMachine
-    Write-Host "Is Exported: " $record.IsExported
-    Write-Host "Is Local Active Recording: " $record.IsLocalActiveRecording
     
     # Patient Information (for exploration - anonymize before export)
     $patient = $record.Patient
@@ -74,12 +70,7 @@ foreach ($record in $records) {
     # Record Fields
     Write-Host "`n--- RECORD DETAILS ---"
     $recordFields = $record.Fields
-    $facilityKey = $record.DefaultFieldDefinitionKeys.Facility
-    $physicianKey = $record.DefaultFieldDefinitionKeys.Physician
     $medicationsKey = $record.DefaultFieldDefinitionKeys.Medications
-    
-    Write-Host "Facility: " $recordFields.GetField($facilityKey).Value.DisplayText
-    Write-Host "Physician: " $recordFields.GetField($physicianKey).Value.DisplayText
     Write-Host "Medications: " $recordFields.GetField($medicationsKey).Value.DisplayText
     
     # Event Types Available
