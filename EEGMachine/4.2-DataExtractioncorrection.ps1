@@ -1,5 +1,25 @@
 # ========================================
-# Fixed version with full error handling
+# Need to fix error with the Null record reading:
+PS C:\users\nicolete\Desktop\ArcCode> .\4.1-DataExtraction.ps1
+
+Security warning
+Run only scripts that you trust. While scripts from the internet can be useful, this script can potentially harm your
+computer. If you trust this script, use the Unblock-File cmdlet to allow the script to run without this warning
+message. Do you want to run C:\users\nicolete\Desktop\ArcCode\4.1-DataExtraction.ps1?
+[D] Do not run  [R] Run once  [S] Suspend  [?] Help (default is "D"): R
+You cannot call a method on a null-valued expression.
+At C:\users\nicolete\Desktop\ArcCode\4.1-DataExtraction.ps1:68 char:1
++ $record.Open()
++ ~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+
+Get-FilteredTimeSegments : Cannot bind argument to parameter 'RecordData' because it is null.
+At C:\users\nicolete\Desktop\ArcCode\4.1-DataExtraction.ps1:72 char:55
++ $validSegments = Get-FilteredTimeSegments -RecordData $data -MinDurat ...
++                                                       ~~~~~
+    + CategoryInfo          : InvalidData: (:) [Get-FilteredTimeSegments], ParameterBindingValidationException
+    + FullyQualifiedErrorId : ParameterArgumentValidationErrorNullNotAllowed,Get-FilteredTimeSegments
 # ========================================
 
 # Function to filter time segments
