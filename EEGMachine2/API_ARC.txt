@@ -1,0 +1,5392 @@
+Arc API Documentation
+The Arc API provides an interface for other programs to interact with the data managed by Arc.
+
+Getting Started
+Once the Arc API has been installed, users can programmatically access it through its Component Object Model (COM) interfaces.
+IArcApi represents the main entry point into the API and is initially accessed through the creation of its implementation class
+ArcApi . Once a user is done with their API session, they should call IArcApi.Dispose().
+The following example provides a basic demonstration using PowerShell (x86) to create a new Arc API session, log in, retrieve
+record information, and then dispose of the session:
+$api = New-Object -comobject Arc.Api.ArcApi
+$api.Login("admin", "admin")
+$records = $api.GetRecords()
+foreach ($record in $records) {
+$dateRecorded = $record.DateRecorded
+$lastNameKey = $record.Patient.DefaultFieldDefinitionKeys.LastName
+$patientLastName = $record.Patient.Fields.GetField($lastNameKey).Value.DisplayText
+Write-Host "[$dateRecorded] $patientLastName"
+}
+$api.Dispose()
+
+For a detailed set of examples using C++, see the C++ sample app that gets installed with the Arc API.
+If you are developing a .NET app, you will need to reference the installed Arc.Api.dll assembly directly instead of the registered
+COM interfaces.
+
+Legacy API
+Backwards-compatibility is supported for legacy FlexComApi users through the IComFlexRecord interface. As a convenience,
+IComFlexRecord2 was introduced to provide easy access to the newer IRecord information via its IComFlexRecord2.Record
+property. It is recommended that future API usage convert entirely to using IArcApi.
+
+Namespace Arc.Api
+I nterfaces
+I ArcApi
+Represents an Arc API session.
+This is the main entry point into the Arc API by creating an ArcApi instance.
+I ChannelD ata
+Provides access to discontinuous waveform data.
+I ChannelI nfo
+Provides access to channel information.
+I CommonReference
+Provides access to common reference information.
+I Event
+Provides access to a single event.
+I EventResult
+The results of creating an event.
+I ReadOnlyList
+A read-only list that supports COM interop by not using C# generics.
+I Result
+A basic result for returning success or failure with an optional error message.
+I TimeI nterval
+Represents a time interval.
+I TimeSegment
+Represents a block of time relative to the beginning of the record.
+I WaveformD ata
+Provides access to waveform data and channel information.
+Enums
+LicenseFeatureE E G
+All licensed EEG features.
+LicenseFeatureSynopsis
+All licensed Synopsis features and individual analyzers.
+PersystEventType
+Specifies the type of Persyst event.
+
+Interface IArcApi
+Represents an Arc API session.
+This is the main entry point into the Arc API by creating an ArcApi instance.
+N am e spac e : A r c .A pi
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public interface IArcApi
+
+P roperties
+CurrentUserKey
+Gets the unique identifier of the currently logged in user.
+NOTE: System.Guid.Empty is returned if there is no user logged in.
+De c l arati on
+Guid CurrentUserKey { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Guid
+
+CurrentUserName
+Gets the user name of the currently logged in user.
+NOTE: A null value is returned if there is no user logged in.
+De c l arati on
+string CurrentUserName { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.String
+
+I sD isposed
+Gets a value indicating whether or not this API session has been disposed.
+De c l arati on
+bool IsDisposed { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Boolean
+
+I sLoggedI n
+Gets a value indicating whether or not a user is currently logged into the system.
+De c l arati on
+
+bool IsLoggedIn { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Boolean
+
+Version
+Gets the version of this API.
+De c l arati on
+string Version { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.String
+
+Methods
+AreRecordsOpenLocally ()
+Gets a value indicating whether or not any records are open on this machine.
+De c l arati on
+bool AreRecordsOpenLocally()
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+System.Boolean
+
+A bool value indicating whether or not any records are open on this machine
+
+D ispose ()
+Disposes this API session and closes all of its open records.
+De c l arati on
+IResult Dispose()
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+IResult
+
+A value indicating success or failure with an optional error message.
+
+G etMontages ()
+Gets a general list of available montages.
+De c l arati on
+IReadOnlyList GetMontages()
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+IReadOnlyList
+
+A list of available IMontage.
+
+G etRecord ( G uid )
+
+Gets the record associated with the given record key.
+NOTE: This operation is only supported if the CadLink Client service is available.
+De c l arati on
+IRecord GetRecord(Guid recordKey)
+Param e te rs
+T YPE
+
+NAME
+
+D ES CR IPTIO N
+
+System.Guid
+
+recordKey
+
+The unique key of the record to retrieve.
+
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+IRecord
+
+The record associated with the given record key.
+
+G etRecord ( String )
+Gets the record associated with the record key in the given external .arc (or .flex) file.
+NOTE: If accessing an exported record, no other records should be accessed until the exported record has been disposed.
+De c l arati on
+IRecord GetRecord(string externalArcFilePath)
+Param e te rs
+T YPE
+
+NAME
+
+D ES CR IPTIO N
+
+System.String
+
+externalArcFilePath
+
+A file path to an external .arc (or .flex) file.
+
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+IRecord
+
+The record associated with the record key in the given external .arc (or .flex) file.
+
+G etRecordCount ()
+Gets the number of active records (i.e. not deleted or archived).
+De c l arati on
+int GetRecordCount()
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+System.Int32
+
+The number of active records.
+
+G etRecordCountsB yYear ()
+Gets the number of active records (i.e. not deleted or archived) grouped by year.
+De c l arati on
+IReadOnlyList GetRecordCountsByYear()
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+IReadOnlyList
+
+A list of IRecordCountByYear.
+
+G etRecords ()
+Gets all of the active records (i.e. not deleted or archived).
+De c l arati on
+IReadOnlyList GetRecords()
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+IReadOnlyList
+
+A list of IRecord.
+
+G etRecords ( D ateTime, D ateTime )
+Gets all of the active records (i.e. not deleted or archived) within the given time range.
+De c l arati on
+IReadOnlyList GetRecords(DateTime minRecordStart, DateTime maxRecordStart)
+Param e te rs
+T YPE
+
+NAME
+
+D ES CR IPTIO N
+
+System.DateTime
+
+minRecordStart
+
+The minimum record creation date to use when retrieving records.
+
+System.DateTime
+
+maxRecordStart
+
+The maximum record creation date to use when retrieving records.
+
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+IReadOnlyList
+
+A list of IRecord.
+
+I mportRecords ( String )
+Imports one or more exported records into CadLink.
+De c l arati on
+IRecordImportResult ImportRecords(string exportFilePath)
+Param e te rs
+T YPE
+
+NAME
+
+D ES CR IPTIO N
+
+System.String
+
+exportFilePath
+
+A file path to an .export file used to locate the exported records.
+NOTE: This file is usually located in the root folder created by a record export operation.
+
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+IRecordImportResult
+
+A result that is updated with the current progress of the import operation. Poll this instance for updates.
+
+Re m ark s
+
+This method is available in version 3.2 and later.
+I sEegFeatureLicensed ( LicenseFeatureE E G )
+Gets a value indicating whether or not the given EEG feature is licensed.
+NOTE: This operation is only supported if the CadLink Client service is available.
+De c l arati on
+bool IsEegFeatureLicensed(LicenseFeatureEEG eegFeatureId)
+
+Param e te rs
+T YPE
+
+NAME
+
+D ES CR IPTIO N
+
+LicenseFeatureEEG
+
+eegFeatureId
+
+The licensed EEG feature to check.
+
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+System.Boolean
+
+A value indicating whether or not the given EEG feature is licensed.
+
+I sRecordI nCadLink ( String )
+Gets a value indicating whether or not the given external .arc (or .flex) file is associated with a record in the CadLink system.
+De c l arati on
+bool IsRecordInCadLink(string externalArcFilePath)
+Param e te rs
+T YPE
+
+NAME
+
+D ES CR IPTIO N
+
+System.String
+
+externalArcFilePath
+
+A file path to an external .arc (or .flex) file.
+
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+System.Boolean
+
+A value indicating whether or not the given external .arc (or .flex) file is associated with a record in the CadLink system.
+
+Re m ark s
+
+This method is helpful for determining whether or not the user needs to log in to the system. If the record exists in the CadLink
+system, the user must be logged in to access the record. If the record has been exported out of the CadLink system, the user does
+not need to log in to the system.
+I sSynopsisFeatureLicensed ( LicenseFeatureSynopsis )
+Gets a value indicating whether or not the given Synopsis feature is licensed.
+NOTE: This operation is only supported if the CadLink Client service is available.
+De c l arati on
+bool IsSynopsisFeatureLicensed(LicenseFeatureSynopsis synopsisFeatureId)
+Param e te rs
+T YPE
+
+NAME
+
+D ES CR IPTIO N
+
+LicenseFeatureSynopsis
+
+synopsisFeatureId
+
+The licensed Synopsis feature to check.
+
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+System.Boolean
+
+A value indicating whether or not the given Synopsis feature is licensed.
+
+Login ()
+Attempt to login as the current Windows AD user. If that fails, prompt the user for login credentials.
+NOTE: This operation may attempt to display a user interface, which will only work in properly configured environments.
+De c l arati on
+IResult Login()
+
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+IResult
+
+A value indicating login success or failure with an optional error message.
+
+Login ( String, String )
+Attempt to login using the user name and password.
+If a user is already logged in, this operation will attempt to switch users.
+De c l arati on
+IResult Login(string username, string password)
+Param e te rs
+T YPE
+
+NAME
+
+D ES CR IPTIO N
+
+System.String
+
+username
+
+A user name.
+
+System.String
+
+password
+
+A user password.
+
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+IResult
+
+A value indicating login success or failure with an optional error message.
+
+LoginAsD omainUser ()
+Attempt to login with the domain credentials of the current Windows AD user.
+De c l arati on
+IResult LoginAsDomainUser()
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+IResult
+
+A value indicating login success or failure with an optional error message.
+
+Logout ()
+Logs the current user out.
+De c l arati on
+IResult Logout()
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+IResult
+
+A value indicating logout success or failure with an optional error message.
+
+Interface IChannelData
+Provides access to discontinuous waveform data.
+N am e spac e : A r c .A pi
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public interface IChannelData
+
+P roperties
+ChannelName
+Gets the name of the channel.
+De c l arati on
+string ChannelName { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.String
+
+EndOffset
+Gets the end offset of the last waveform data (relative to the beginning of the record).
+De c l arati on
+ITimeInterval EndOffset { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+ITimeInterval
+Re m ark s
+
+If WaveformData doesn't contain any elements, EndOffset will be null.
+EndTime
+Gets the UTC time of the end of the last waveform data.
+De c l arati on
+DateTime EndTime { get; }
+P r o p e r t y Va l u e
+T YPE
+
+System.DateTime
+Re m ark s
+
+This property is available in version 3.2 and later.
+SampleCount
+Gets the number of data points acquired.
+De c l arati on
+
+D ES CR IPTIO N
+
+int SampleCount { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Int32
+
+StartOffset
+Gets the start offset of the first waveform data (relative to the beginning of the record).
+De c l arati on
+ITimeInterval StartOffset { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+ITimeInterval
+Re m ark s
+
+If WaveformData doesn't contain any elements, StartOffset will be null.
+StartTime
+Gets the UTC time of the start of the first waveform data.
+De c l arati on
+DateTime StartTime { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.DateTime
+Re m ark s
+
+This property is available in version 3.2 and later.
+WaveformD ata
+Gets the list of discontinuous waveform data segments associated with this data.
+De c l arati on
+IReadOnlyList WaveformData { get; }
+P r o p e r t y Va l u e
+T YPE
+
+IReadOnlyList
+Re m ark s
+
+Contains a list of IWaveformData.
+
+D ES CR IPTIO N
+
+Interface IChannelInfo
+Provides access to channel information.
+N am e spac e : A r c .A pi
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public interface IChannelInfo
+
+P roperties
+ChannelName
+Gets the name of the channel for display purposes.
+De c l arati on
+string ChannelName { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.String
+
+ChannelNumber
+Gets the channel number.
+De c l arati on
+int ChannelNumber { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Int32
+
+SamplePeriod
+Gets the time interval between each data point.
+De c l arati on
+ITimeInterval SamplePeriod { get; }
+P r o p e r t y Va l u e
+T YPE
+
+ITimeInterval
+
+D ES CR IPTIO N
+
+Interface ICommonReference
+Provides access to common reference information.
+N am e spac e : A r c .A pi
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public interface ICommonReference
+
+P roperties
+ChannelName
+Gets the channel name of the common reference.
+De c l arati on
+string ChannelName { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.String
+
+Offset
+Gets the offset of when this common reference was applied relative to the beginning of the record.
+De c l arati on
+ITimeInterval Offset { get; }
+P r o p e r t y Va l u e
+T YPE
+
+ITimeInterval
+
+D ES CR IPTIO N
+
+Interface IEvent
+Provides access to a single event.
+N am e spac e : A r c .A pi
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public interface IEvent
+
+P roperties
+CanD elete
+Gets a value indicating whether or not the event can be deleted.
+De c l arati on
+bool CanDelete { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Boolean
+
+D uration
+Gets the duration of the event.
+De c l arati on
+ITimeInterval Duration { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+ITimeInterval
+
+EventI D
+Gets the unique identifier of the event.
+De c l arati on
+Guid EventID { get; }
+P r o p e r t y Va l u e
+T YPE
+
+System.Guid
+
+EventType
+Gets the type of event.
+Default event types are documented at EventTypes.
+De c l arati on
+string EventType { get; }
+P r o p e r t y Va l u e
+
+D ES CR IPTIO N
+
+T YPE
+
+D ES CR IPTIO N
+
+System.String
+
+I sCreatedB yApi
+Gets a value indicating whether or not the event was created through the API.
+De c l arati on
+bool IsCreatedByApi { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Boolean
+
+Offset
+Gets the offset of the event relative to the beginning of the record.
+De c l arati on
+ITimeInterval Offset { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+ITimeInterval
+
+P riority
+Gets the priority of the event (-1 = no priority, 0 = lowest priority, 4 = highest priority).
+De c l arati on
+int Priority { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Int32
+
+Text
+Gets the descriptive text for the event.
+De c l arati on
+string Text { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.String
+
+TraceContainerI D
+Gets the unique identifier of the trace container associated with the event.
+NOTE: System.Guid.Empty is returned if there is no trace container association.
+De c l arati on
+
+Guid TraceContainerID { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Guid
+
+UserI D
+Gets the unique identifier of the user who added the event.
+De c l arati on
+Guid UserID { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Guid
+
+Methods
+D elete ()
+Deletes the event.
+De c l arati on
+IResult Delete()
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+IResult
+
+A value indicating deletion success or failure with an optional error message.
+
+Interface IEventResult
+The results of creating an event.
+Inhe ri te d Me m be rs
+
+IResult.ErrorMessage
+IResult.IsSuccess
+N am e spac e : A r c .A pi
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public interface IEventResult : IResult
+
+P roperties
+Event
+Gets the created event, if successful.
+De c l arati on
+IEvent Event { get; }
+P r o p e r t y Va l u e
+T YPE
+
+IEvent
+
+D ES CR IPTIO N
+
+Interface IReadOnlyList
+A read-only list that supports COM interop by not using C# generics.
+Inhe ri te d Me m be rs
+
+System.Collections.IEnumerable.GetEnumerator()
+N am e spac e : A r c .A pi
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public interface IReadOnlyList : IEnumerable
+
+Methods
+Any ()
+Gets a value indicating whether or not the list has any items.
+De c l arati on
+bool Any()
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+System.Boolean
+
+G etAt ( I nt32 )
+Gets the item at the given index in the list.
+De c l arati on
+object GetAt(int index)
+Param e te rs
+T YPE
+
+NAME
+
+System.Int32
+
+index
+
+D ES CR IPTIO N
+
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+System.Object
+
+G etCount ()
+Gets the number of items in the list.
+De c l arati on
+int GetCount()
+Re turns
+T YPE
+
+System.Int32
+
+D ES CR IPTIO N
+
+Interface IResult
+A basic result for returning success or failure with an optional error message.
+N am e spac e : A r c .A pi
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public interface IResult
+
+P roperties
+ErrorMessage
+Gets the error message for the result, if any.
+De c l arati on
+string ErrorMessage { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.String
+
+I sSuccess
+Gets a value indicating whether the result was successful or not.
+De c l arati on
+bool IsSuccess { get; }
+P r o p e r t y Va l u e
+T YPE
+
+System.Boolean
+
+D ES CR IPTIO N
+
+Interface ITimeInterval
+Represents a time interval.
+Inhe ri te d Me m be rs
+
+System.IComparable.CompareTo(System.Object)
+System.IFormattable.ToString(System.String, System.IFormatProvider)
+N am e spac e : A r c .A pi
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public interface ITimeInterval : IComparable, IFormattable
+
+P roperties
+Ticks
+Gets the value of the time interval expressed in ticks (100-nanosecond units).
+De c l arati on
+long Ticks { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Int64
+
+TotalD ays
+Gets the value of the time interval expressed in whole and fractional days.
+De c l arati on
+double TotalDays { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Double
+
+TotalH ours
+Gets the value of the time interval expressed in whole and fractional hours.
+De c l arati on
+double TotalHours { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Double
+
+TotalMilliseconds
+Gets the value of the time interval expressed in whole and fractional milliseconds.
+De c l arati on
+double TotalMilliseconds { get; }
+
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Double
+
+TotalMinutes
+Gets the value of the time interval expressed in whole and fractional minutes.
+De c l arati on
+double TotalMinutes { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Double
+
+TotalSeconds
+Gets the value of the time interval expressed in whole and fractional seconds.
+De c l arati on
+double TotalSeconds { get; }
+P r o p e r t y Va l u e
+T YPE
+
+System.Double
+
+D ES CR IPTIO N
+
+Interface ITimeSegment
+Represents a block of time relative to the beginning of the record.
+N am e spac e : A r c .A pi
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public interface ITimeSegment
+
+P roperties
+EndOffset
+Gets the end offset of the time segment (relative to the beginning of the record).
+De c l arati on
+ITimeInterval EndOffset { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+ITimeInterval
+
+StartOffset
+Gets the start offset of the time segment (relative to the beginning of the record).
+De c l arati on
+ITimeInterval StartOffset { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+ITimeInterval
+
+TotalD uration
+Gets the total duration of the time segment (from start to end offset).
+De c l arati on
+ITimeInterval TotalDuration { get; }
+P r o p e r t y Va l u e
+T YPE
+
+ITimeInterval
+
+D ES CR IPTIO N
+
+Interface IWaveformData
+Provides access to waveform data and channel information.
+N am e spac e : A r c .A pi
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public interface IWaveformData
+
+P roperties
+ChannelName
+Gets the name of the channel.
+De c l arati on
+string ChannelName { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.String
+
+D ata
+Gets the array of data points for the waveform.
+De c l arati on
+float[] Data { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Single[]
+
+EndOffset
+Gets the end offset of the waveform data (relative to the beginning of the record).
+De c l arati on
+ITimeInterval EndOffset { get; }
+P r o p e r t y Va l u e
+T YPE
+
+ITimeInterval
+
+EndTime
+Gets the UTC time of the end of the waveform data.
+De c l arati on
+DateTime EndTime { get; }
+P r o p e r t y Va l u e
+
+D ES CR IPTIO N
+
+T YPE
+
+D ES CR IPTIO N
+
+System.DateTime
+Re m ark s
+
+This property is available in version 3.2 and later.
+H ighCutFilter
+Gets the frequency of any high cut filter applied to the data channel by hardware.
+A value of 0 indicates that no filter was applied.
+De c l arati on
+double HighCutFilter { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Double
+
+LowCutFilter
+Gets the frequency of any low cut filter applied to the data channel by hardware.
+A value of 0 indicates that no filter was applied.
+De c l arati on
+double LowCutFilter { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Double
+
+NotchFilter
+Gets the frequency of any notch filter applied to the data channel by hardware.
+A value of 0 indicates that no filter was applied.
+De c l arati on
+double NotchFilter { get; }
+P r o p e r t y Va l u e
+T YPE
+
+System.Double
+
+SampleCount
+Gets the number of data points acquired.
+De c l arati on
+int SampleCount { get; }
+P r o p e r t y Va l u e
+
+D ES CR IPTIO N
+
+T YPE
+
+D ES CR IPTIO N
+
+System.Int32
+
+SamplePeriod
+Gets the time interval between each data point.
+De c l arati on
+ITimeInterval SamplePeriod { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+ITimeInterval
+
+StartOffset
+Gets the start offset of the waveform data (relative to the beginning of the record).
+De c l arati on
+ITimeInterval StartOffset { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+ITimeInterval
+
+StartTime
+Gets the UTC time of the start of the waveform data.
+De c l arati on
+DateTime StartTime { get; }
+P r o p e r t y Va l u e
+T YPE
+
+System.DateTime
+Re m ark s
+
+This property is available in version 3.2 and later.
+
+D ES CR IPTIO N
+
+Enum LicenseFeatureEEG
+All licensed EEG features.
+N am e spac e : A r c .A pi
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public enum LicenseFeatureEEG
+
+Fields
+NAME
+
+D ES CR IPTIO N
+
+ArtifactReductionAcquisition
+
+Allows use of the Encevis Artifact Reduction features for the acquisition machine.
+
+ArtifactReductionReview
+
+Allows use of the Encevis Artifact Reduction features for the review machine.
+
+Easy3Amplifier
+
+Allows use of the Easy III Amplifier features.
+
+Highlights
+
+Allows use of the Highlights features.
+
+Oximetry
+
+Allows use of the Oximetry features.
+
+RemoteControl
+
+Allows use of the Remote Control features.
+
+RoomAutomation
+
+Allows use of the Room Automation features.
+
+SatelliteView
+
+Allows use of the Satellite View features.
+
+Sentinel
+
+Allows use of the Sentinel features.
+
+Video
+
+Allows use of the Video features.
+
+Wireless
+
+Allows use of the Wireless Device features.
+
+Enum LicenseFeatureSynopsis
+All licensed Synopsis features and individual analyzers.
+N am e spac e : A r c .A pi
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public enum LicenseFeatureSynopsis
+
+Fields
+NAME
+
+D ES CR IPTIO N
+
+AmplitudeIntegratedEEGAnalyzer
+
+Allows use of the aEEG Analyzer features.
+
+BandPowerAnalyzer
+
+Allows use of the Band Power Analyzer features.
+
+EnvelopeAsymmetryAnalyzer
+
+Allows use of the Envelope Asymmetry Analyzer features.
+
+EnvelopeEEGAnalyzer
+
+Allows use of the Envelope EEG Analyzer features.
+
+EventDetectionFeature
+
+Allows use of the Event Detection features.
+
+PowerRatioAnalyzer
+
+Allows use of the Power Ratio Analyzer features.
+
+SpectralEntropyAnalyzer
+
+Allows use of the Spectral Entropy Analyzer features.
+
+SpectrogramAnalyzer
+
+Allows use of the Spectrogram Analyzer features.
+
+TrendingFeature
+
+Allows use of the Trend Panel features.
+
+Enum PersystEventType
+Specifies the type of Persyst event.
+N am e spac e : A r c .A pi
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public enum PersystEventType
+
+Fields
+NAME
+
+Comment
+RhythmicBurst
+SeizureDetected
+Spike
+SpikeBurst
+
+D ES CR IPTIO N
+
+Namespace Arc.Api.CorticalStim
+I nterfaces
+I CorticalStimEvent
+Provides access to a single cortical stimulation event.
+I CorticalStimSettings
+Enums
+CorticalStimB odyRegion
+Body region associated with cortical stimulation responses.
+CorticalStimB odySide
+Body side utilized in cortical stim tasks and/or responses.
+CorticalStimFunctionalResponseType
+Functional response types
+CorticalStimMode
+CorticalStimPatternMode
+CorticalStimPolarity
+
+Enum CorticalStimBodyRegion
+Body region associated with cortical stimulation responses.
+N am e spac e : A r c .A pi.C or tic alStim
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public enum CorticalStimBodyRegion
+
+Fields
+NAME
+
+Abdomen
+Back
+Chest
+Face
+Foot
+Hand
+Head
+LowerArm
+LowerBack
+LowerLeg
+Neck
+None
+Shoulder
+UpperArm
+UpperLeg
+
+D ES CR IPTIO N
+
+Enum CorticalStimBodySide
+Body side utilized in cortical stim tasks and/or responses.
+N am e spac e : A r c .A pi.C or tic alStim
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public enum CorticalStimBodySide
+
+Fields
+NAME
+
+Left
+None
+Right
+
+D ES CR IPTIO N
+
+Enum CorticalStimFunctionalResponseType
+Functional response types
+N am e spac e : A r c .A pi.C or tic alStim
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public enum CorticalStimFunctionalResponseType
+
+Fields
+NAME
+
+Auditory
+Language
+Mixed
+Motor
+None
+Other
+Sensory
+Speech
+Visual
+
+D ES CR IPTIO N
+
+Enum CorticalStimMode
+N am e spac e : A r c .A pi.C or tic alStim
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public enum CorticalStimMode
+
+Fields
+NAME
+
+Alternating
+Biphasic
+Monophasic
+
+D ES CR IPTIO N
+
+Enum CorticalStimPatternMode
+N am e spac e : A r c .A pi.C or tic alStim
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public enum CorticalStimPatternMode
+
+Fields
+NAME
+
+AnodeToCathode
+CathodeToAnode
+None
+Pair
+
+D ES CR IPTIO N
+
+Enum CorticalStimPolarity
+N am e spac e : A r c .A pi.C or tic alStim
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public enum CorticalStimPolarity
+
+Fields
+NAME
+
+NegativeStart
+PositiveStart
+
+D ES CR IPTIO N
+
+Interface ICorticalStimEvent
+Provides access to a single cortical stimulation event.
+Inhe ri te d Me m be rs
+
+IEvent.CanDelete
+IEvent.Duration
+IEvent.EventID
+IEvent.EventType
+IEvent.IsCreatedByApi
+IEvent.Offset
+IEvent.Priority
+IEvent.Text
+IEvent.TraceContainerID
+IEvent.UserID
+IEvent.Delete()
+N am e spac e : A r c .A pi.C or tic alStim
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public interface ICorticalStimEvent : IEvent
+
+P roperties
+Anodes
+Negative electrode(s) involved in the cortical stim event.
+De c l arati on
+int[] Anodes { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Int32[]
+
+B odyRegion
+Gets the body region where the response occurred.
+De c l arati on
+CorticalStimBodyRegion BodyRegion { get; }
+P r o p e r t y Va l u e
+T YPE
+
+CorticalStimBodyRegion
+
+B odySide
+Gets the body side where the response occurred.
+De c l arati on
+CorticalStimBodySide BodySide { get; }
+P r o p e r t y Va l u e
+
+D ES CR IPTIO N
+
+T YPE
+
+D ES CR IPTIO N
+
+CorticalStimBodySide
+
+Cathodes
+Positive electrode(s) involved in the cortical stim event.
+De c l arati on
+int[] Cathodes { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Int32[]
+
+CurrentD elivered
+Gets a value indicating the amount of current delivered to the patient via stimulation in mA.
+De c l arati on
+double CurrentDelivered { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Double
+
+FunctionalResponse
+Gets the functional response the patient had to the stim.
+De c l arati on
+string FunctionalResponse { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.String
+
+I sAfterD ischarges
+Gets if there were discharges after this event.
+De c l arati on
+bool IsAfterDischarges { get; }
+P r o p e r t y Va l u e
+T YPE
+
+System.Boolean
+
+I sFinished
+Gets if the stim has been stopped.
+De c l arati on
+bool IsFinished { get; }
+
+D ES CR IPTIO N
+
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Boolean
+
+PatientTask
+Gets the task the patient was given during the stim
+De c l arati on
+string PatientTask { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.String
+
+ResponseType
+Functional response type.
+De c l arati on
+CorticalStimFunctionalResponseType ResponseType { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+CorticalStimFunctionalResponseType
+
+StimD isplayText
+Stim event text.
+De c l arati on
+string StimDisplayText { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.String
+
+StimPatternMode
+Stimulation mode applied to a stimulator.
+De c l arati on
+CorticalStimPatternMode StimPatternMode { get; }
+P r o p e r t y Va l u e
+T YPE
+
+CorticalStimPatternMode
+
+StimSettings
+De c l arati on
+ICorticalStimSettings StimSettings { get; }
+P r o p e r t y Va l u e
+
+D ES CR IPTIO N
+
+T YPE
+
+ICorticalStimSettings
+
+D ES CR IPTIO N
+
+Interface ICorticalStimSettings
+N am e spac e : A r c .A pi.C or tic alStim
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public interface ICorticalStimSettings
+
+P roperties
+ClampD uringStim
+De c l arati on
+bool ClampDuringStim { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Boolean
+
+D uration
+De c l arati on
+double Duration { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Double
+
+I ntensity
+De c l arati on
+double Intensity { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Double
+
+I nterpulseI nterval
+De c l arati on
+double InterpulseInterval { get; }
+P r o p e r t y Va l u e
+T YPE
+
+System.Double
+
+Mode
+De c l arati on
+CorticalStimMode Mode { get; }
+P r o p e r t y Va l u e
+
+D ES CR IPTIO N
+
+T YPE
+
+D ES CR IPTIO N
+
+CorticalStimMode
+
+Polarity
+De c l arati on
+CorticalStimPolarity Polarity { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+CorticalStimPolarity
+
+P ulseWidth
+De c l arati on
+double PulseWidth { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Double
+
+RepRate
+De c l arati on
+double RepRate { get; }
+P r o p e r t y Va l u e
+T YPE
+
+System.Double
+
+D ES CR IPTIO N
+
+Namespace Arc.Api.Documents
+I nterfaces
+I AssociatedD ocument
+Provides access to a single associated document.
+
+Interface IAssociatedDocument
+Provides access to a single associated document.
+N am e spac e : A r c .A pi.Doc u m e n ts
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public interface IAssociatedDocument
+
+P roperties
+FileName
+Gets the document's file name.
+De c l arati on
+string FileName { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.String
+
+Key
+Gets the unique identifier of the document.
+De c l arati on
+Guid Key { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Guid
+
+Methods
+Export ( String )
+Saves the document to the given file path.
+De c l arati on
+IResult Export(string filePath)
+Param e te rs
+T YPE
+
+NAME
+
+D ES CR IPTIO N
+
+System.String
+
+filePath
+
+The file path to save the document to.
+
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+IResult
+
+A value indicating success or failure with an optional error message.
+
+Namespace Arc.Api.Fields
+I nterfaces
+I Field
+Provides access to a single field.
+I FieldD efinition
+Provides access to the backing definition of a field.
+I FieldList
+Provides access to a list of fields.
+I FieldValue
+Provides access to the value of a field.
+Enums
+FieldD isplayType
+Specifies the display type for a field.
+FieldValueType
+Specifies the type of value stored by a field.
+
+Enum FieldDisplayType
+Specifies the display type for a field.
+N am e spac e : A r c .A pi.Fie lds
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public enum FieldDisplayType
+
+Fields
+NAME
+
+D ES CR IPTIO N
+
+Date
+
+A date.
+
+Paragraph
+
+Multi-line text.
+
+SelectionList
+
+A valid field value must come from a list of defined options (SelectionList).
+All complex values (i.e. facilities) will map to this display type.
+
+Text
+
+Single-line text.
+The custom field types Short, Medium, and Long map to this value.
+
+Enum FieldValueType
+Specifies the type of value stored by a field.
+N am e spac e : A r c .A pi.Fie lds
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public enum FieldValueType
+
+Fields
+NAME
+
+D ES CR IPTIO N
+
+DateTime A System.DateTime.
+Float32
+
+A System.Single.
+
+Int32
+
+A System.Int32.
+
+String
+
+A System.String.
+
+Unknown
+
+Used for value types that we don't currently expose in detail and reserve the right to change to a more explicit type later on.
+Display these values using DisplayText.
+
+Interface IField
+Provides access to a single field.
+N am e spac e : A r c .A pi.Fie lds
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public interface IField
+
+P roperties
+D efinition
+Gets the backing definition of the field.
+De c l arati on
+IFieldDefinition Definition { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+IFieldDefinition
+
+Value
+Gets the value of the field.
+De c l arati on
+IFieldValue Value { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+IFieldValue
+
+Methods
+SetValue ( Object )
+Sets the field's value.
+De c l arati on
+IResult SetValue(object value)
+Param e te rs
+T YPE
+
+NAME
+
+D ES CR IPTIO N
+
+System.Object
+
+value
+
+The value to set on the field. This must respect the backing ValueType.
+If the DisplayType equals SelectionList, this value must be an IFieldValue from SelectionList.
+
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+IResult
+
+A value indicating success or failure with an optional error message.
+
+Interface IFieldDefinition
+Provides access to the backing definition of a field.
+N am e spac e : A r c .A pi.Fie lds
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public interface IFieldDefinition
+
+P roperties
+D isplayType
+Gets the display type (i.e. text, date, etc) of the field.
+De c l arati on
+FieldDisplayType DisplayType { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+FieldDisplayType
+
+I sD efault
+Gets a value indicating whether this is a system default field or a user custom field.
+De c l arati on
+bool IsDefault { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Boolean
+
+I sReadOnly
+Gets a value indicating whether or not the field is read-only and cannot be changed.
+De c l arati on
+bool IsReadOnly { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Boolean
+
+I sRequiredToClose
+Gets a value indicating whether or not the field must have a value before a recording is closed.
+De c l arati on
+bool IsRequiredToClose { get; }
+P r o p e r t y Va l u e
+
+T YPE
+
+D ES CR IPTIO N
+
+System.Boolean
+
+I sRequiredToStart
+Gets a value indicating whether or not the field must have a value before a recording is started.
+De c l arati on
+bool IsRequiredToStart { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Boolean
+
+Name
+Gets the name of the field.
+De c l arati on
+string Name { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.String
+
+P rimaryKey
+Gets the unique key for this field definition.
+For known default field definition keys, see DefaultFieldDefinitionKeys and DefaultFieldDefinitionKeys.
+De c l arati on
+Guid PrimaryKey { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Guid
+
+SelectionList
+Gets a list of valid IFieldValue for the field if DisplayType equals SelectionList.
+De c l arati on
+IReadOnlyList SelectionList { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+IReadOnlyList
+
+ValueType
+Gets the type of value stored by the field (i.e. String, DateTime, etc).
+De c l arati on
+
+FieldValueType ValueType { get; }
+P r o p e r t y Va l u e
+T YPE
+
+FieldValueType
+
+D ES CR IPTIO N
+
+Interface IFieldList
+Provides access to a list of fields.
+Inhe ri te d Me m be rs
+
+IReadOnlyList.Any()
+IReadOnlyList.GetAt(Int32)
+IReadOnlyList.GetCount()
+System.Collections.IEnumerable.GetEnumerator()
+N am e spac e : A r c .A pi.Fie lds
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public interface IFieldList : IReadOnlyList, IEnumerable
+
+Methods
+G etField ( G uid )
+Gets the field whose PrimaryKey matches the given key.
+NOTE: This method is simply a convenience for consumers without LINQ.
+De c l arati on
+IField GetField(Guid primaryKey)
+Param e te rs
+T YPE
+
+NAME
+
+D ES CR IPTIO N
+
+System.Guid
+
+primaryKey
+
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+IField
+
+G etFieldAt ( I nt32 )
+Gets the field at the given index in the list.
+De c l arati on
+IField GetFieldAt(int index)
+Param e te rs
+T YPE
+
+NAME
+
+System.Int32
+
+index
+
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+IField
+
+RefreshD ata ()
+Updates the list with the latest fields from the database.
+De c l arati on
+IResult RefreshData()
+
+D ES CR IPTIO N
+
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+IResult
+
+A value indicating success or failure with an optional error message.
+
+SaveD ata ()
+Saves any field value changes in the list to the database.
+De c l arati on
+IResult SaveData()
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+IResult
+
+A value indicating success or failure with an optional error message.
+
+Interface IFieldValue
+Provides access to the value of a field.
+N am e spac e : A r c .A pi.Fie lds
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public interface IFieldValue
+
+P roperties
+D isplayText
+Gets a text representation of the value to display.
+NOTE: This provides a common way to display a string representation of the field value without needing to know its type.
+De c l arati on
+string DisplayText { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.String
+
+RawValue
+Gets the underlying raw object associated with the backing ValueType.
+De c l arati on
+object RawValue { get; }
+P r o p e r t y Va l u e
+T YPE
+
+System.Object
+
+D ES CR IPTIO N
+
+Namespace Arc.Api.Impedances
+I nterfaces
+I I mpedance
+Contains impedance measurement information taken at a given time in the record.
+I I mpedanceD ata
+Contains impedance value and connection information for a single input.
+
+Interface IImpedance
+Contains impedance measurement information taken at a given time in the record.
+N am e spac e : A r c .A pi.Im pe dan c e s
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public interface IImpedance
+
+P roperties
+H ighB oundary
+Gets the high impedance boundary (in Ohms).
+De c l arati on
+int HighBoundary { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Int32
+
+I tems
+Gets a list of IImpedanceData.
+De c l arati on
+IReadOnlyList Items { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+IReadOnlyList
+
+LowB oundary
+Gets the low impedance boundary (in Ohms).
+De c l arati on
+int LowBoundary { get; }
+P r o p e r t y Va l u e
+T YPE
+
+System.Int32
+
+Offset
+Gets the time offset relative to the beginning of the record.
+De c l arati on
+ITimeInterval Offset { get; }
+P r o p e r t y Va l u e
+
+D ES CR IPTIO N
+
+T YPE
+
+ITimeInterval
+
+D ES CR IPTIO N
+
+Interface IImpedanceData
+Contains impedance value and connection information for a single input.
+N am e spac e : A r c .A pi.Im pe dan c e s
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public interface IImpedanceData
+
+P roperties
+Channel
+Gets the name of the input channel (i.e. Fp1, C4, Fz, etc).
+De c l arati on
+string Channel { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.String
+
+I sConnected
+Gets the connection state of the channel.
+De c l arati on
+bool IsConnected { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Boolean
+
+KiloOhms
+Gets the impedance value in KiloOhms.
+De c l arati on
+int KiloOhms { get; }
+P r o p e r t y Va l u e
+T YPE
+
+System.Int32
+
+Ohms
+Gets the impedance value in Ohms.
+De c l arati on
+double Ohms { get; }
+P r o p e r t y Va l u e
+
+D ES CR IPTIO N
+
+T YPE
+
+System.Double
+
+D ES CR IPTIO N
+
+Namespace Arc.Api.Media
+Classes
+MediaFrameB ase
+Media frame base class, which provides shared functionality between video and audio frames.
+I nterfaces
+I AudioFrame
+Provides access to a single video frame.
+I MediaChannelD efinition
+Provides access to information about a media channel.
+I MediaService
+Provides a service for retrieving media data.
+I V ideoExportResult
+The results of the video export operation.
+I V ideoFileExportResult
+The results of the video file export operation.
+I V ideoFrame
+Provides access to a single video frame.
+I V ideoMeta
+Meta data for an exported video chunk.
+I V ideoStreamExportResult
+The results of the video stream export operation.
+Enums
+EncodingType
+Describes the recognized video and audio encoding types.
+V ideoExportOption
+Specifies the instructions on how to export the video.
+
+Enum EncodingType
+Describes the recognized video and audio encoding types.
+N am e spac e : A r c .A pi.M e dia
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public enum EncodingType
+
+Fields
+NAME
+
+AAC
+AC3
+AMR
+BGR8
+BGRA8
+FloatIEEE
+G726
+H261
+H263
+H264
+H265
+LPCM
+MJPEG
+MP3
+MPEG1V
+MPEG2V
+MPEG4V
+PCM
+PCMA
+PCMU
+ScreenVideo
+ScreenVideo2
+Speex
+TRACK_UNKNOWN
+VC1
+VP6
+VP6A
+WaveformNoCompression
+WaveformNonlinearDeltaCompression
+
+D ES CR IPTIO N
+
+NAME
+
+WMV
+YUV
+
+D ES CR IPTIO N
+
+Interface IAudioFrame
+Provides access to a single video frame.
+N am e spac e : A r c .A pi.M e dia
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public interface IAudioFrame
+
+P roperties
+AudioB uffer
+Gets the raw audio data for the frame.
+De c l arati on
+byte[] AudioBuffer { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Byte[]
+
+EncodingType
+Gets the encoding type of this audio frame.
+De c l arati on
+EncodingType EncodingType { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+EncodingType
+
+SampleRate
+The audio sampling rate in Hz
+De c l arati on
+int SampleRate { get; }
+P r o p e r t y Va l u e
+T YPE
+
+System.Int32
+
+Time
+Gets the time of the audio frame in UTC.
+De c l arati on
+DateTime Time { get; }
+P r o p e r t y Va l u e
+
+D ES CR IPTIO N
+
+T YPE
+
+System.DateTime
+
+D ES CR IPTIO N
+
+Interface IMediaChannelDefinition
+Provides access to information about a media channel.
+N am e spac e : A r c .A pi.M e dia
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public interface IMediaChannelDefinition
+
+P roperties
+AudioTrackNumber
+Gets the track number for this channel's audio data.
+NOTE: If no audio is available, the value will be -1.
+De c l arati on
+int AudioTrackNumber { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Int32
+
+V ideoTrackNumber
+Gets the track number for this channel's video data.
+NOTE: If no video is available, the value will be -1.
+De c l arati on
+int VideoTrackNumber { get; }
+P r o p e r t y Va l u e
+T YPE
+
+System.Int32
+
+D ES CR IPTIO N
+
+Interface IMediaService
+Provides a service for retrieving media data.
+N am e spac e : A r c .A pi.M e dia
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public interface IMediaService
+
+Methods
+ExportMp4V ideo ( I MediaChannelD efinition, I nt32, I nt32, V ideoExportOption )
+Exports the MP4 video to byte array(s).
+De c l arati on
+IVideoStreamExportResult ExportMp4Video(IMediaChannelDefinition mediaChannel, int offset, int duration,
+VideoExportOption exportOption)
+Param e te rs
+T YPE
+
+NAME
+
+D ES CR IPTIO N
+
+IMediaChannelDefinition
+
+mediaChannel The media channels to export.
+
+System.Int32
+
+offset
+
+Start offset (in seconds) relative to the beginning of the record to begin exporting video.
+
+System.Int32
+
+duration
+
+The duration of video to export (in seconds). Use System.Int32.MaxValue to export full video.
+
+VideoExportOption
+
+exportOption
+
+The instructions on how to export the video.
+
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+IVideoStreamExportResult
+
+The results of the video export.
+
+ExportMp4V ideo ( I MediaChannelD efinition, I nt32, I nt32, V ideoExportOption, String )
+Exports the MP4 video to file(s) at the specified file path.
+De c l arati on
+IVideoFileExportResult ExportMp4Video(IMediaChannelDefinition mediaChannel, int offset, int duration,
+VideoExportOption exportOption, string filePath)
+Param e te rs
+T YPE
+
+NAME
+
+D ES CR IPTIO N
+
+IMediaChannelDefinition
+
+mediaChannel The media channels to export.
+
+System.Int32
+
+offset
+
+Start offset (in seconds) relative to the beginning of the record to begin exporting video.
+
+System.Int32
+
+duration
+
+The duration of video to export (in seconds). Use System.Int32.MaxValue to export full video.
+
+VideoExportOption
+
+exportOption
+
+The instructions on how to export the video.
+
+System.String
+
+filePath
+
+The file path to export video to.
+
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+IVideoFileExportResult
+
+The results of the video export.
+
+G etAudioFrames ( I MediaChannelD efinition, I nt32, I nt32 )
+
+Gets contiguous decoded audio frames for the requested time frame.
+De c l arati on
+IReadOnlyList GetAudioFrames(IMediaChannelDefinition mediaChannel, int offset, int duration)
+Param e te rs
+T YPE
+
+NAME
+
+D ES CR IPTIO N
+
+IMediaChannelDefinition
+
+mediaChannel
+
+System.Int32
+
+offset
+
+System.Int32
+
+duration
+
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+IReadOnlyList
+
+G etMediaChannels ()
+Gets the media channels for this record.
+De c l arati on
+IReadOnlyList GetMediaChannels()
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+IReadOnlyList
+
+A list of IMediaChannelDefinition.
+
+G etV ideoFrames ( I MediaChannelD efinition, I nt32, I nt32 )
+Gets contiguous decoded video frames for the requested time frame.
+De c l arati on
+IReadOnlyList GetVideoFrames(IMediaChannelDefinition mediaChannel, int offset, int duration)
+Param e te rs
+T YPE
+
+NAME
+
+D ES CR IPTIO N
+
+IMediaChannelDefinition
+
+mediaChannel The media channels to retrieve from.
+
+System.Int32
+
+offset
+
+Start offset (in seconds) relative to the beginning of the record to begin retrieving video.
+
+System.Int32
+
+duration
+
+The duration of video to export (in seconds). Use System.Int32.MaxValue to retrieve full video.
+
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+IReadOnlyList
+
+A list of IVideoFrame.
+
+Interface IVideoExportResult
+The results of the video export operation.
+Inhe ri te d Me m be rs
+
+IResult.ErrorMessage
+IResult.IsSuccess
+N am e spac e : A r c .A pi.M e dia
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public interface IVideoExportResult : IResult
+
+P roperties
+Meta
+Gets a list of IVideoMeta. Each item corresponds to a single video chunk.
+De c l arati on
+IReadOnlyList Meta { get; }
+P r o p e r t y Va l u e
+T YPE
+
+IReadOnlyList
+
+D ES CR IPTIO N
+
+Interface IVideoFileExportResult
+The results of the video file export operation.
+Inhe ri te d Me m be rs
+
+IVideoExportResult.Meta
+IResult.ErrorMessage
+IResult.IsSuccess
+N am e spac e : A r c .A pi.M e dia
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public interface IVideoFileExportResult : IVideoExportResult, IResult
+
+P roperties
+Files
+Gets a list of exported video file paths as System.String items.
+De c l arati on
+IReadOnlyList Files { get; }
+P r o p e r t y Va l u e
+T YPE
+
+IReadOnlyList
+
+D ES CR IPTIO N
+
+Interface IVideoFrame
+Provides access to a single video frame.
+N am e spac e : A r c .A pi.M e dia
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public interface IVideoFrame
+
+P roperties
+B itsPerP ixel
+Gets the number of bits per pixel. This field will be zero for encoded video frames.
+De c l arati on
+int BitsPerPixel { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Int32
+
+EncodingType
+Gets the encoding type of this video frame.
+De c l arati on
+EncodingType EncodingType { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+EncodingType
+
+H eight
+Gets the height of the frame (in pixels).
+De c l arati on
+int Height { get; }
+P r o p e r t y Va l u e
+T YPE
+
+System.Int32
+
+Time
+Gets the time of the video frame in UTC.
+De c l arati on
+DateTime Time { get; }
+P r o p e r t y Va l u e
+
+D ES CR IPTIO N
+
+T YPE
+
+D ES CR IPTIO N
+
+System.DateTime
+
+V ideoB uffer
+Gets the raw bitmap data for the video frame.
+De c l arati on
+byte[] VideoBuffer { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Byte[]
+
+Width
+Gets the width of the frame (in pixels).
+De c l arati on
+int Width { get; }
+P r o p e r t y Va l u e
+T YPE
+
+System.Int32
+
+D ES CR IPTIO N
+
+Interface IVideoMeta
+Meta data for an exported video chunk.
+N am e spac e : A r c .A pi.M e dia
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public interface IVideoMeta
+
+P roperties
+D uration
+Gets the duration of the video chunk.
+De c l arati on
+ITimeInterval Duration { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+ITimeInterval
+
+Offset
+Gets the offset relative to the beginning of the record.
+De c l arati on
+ITimeInterval Offset { get; }
+P r o p e r t y Va l u e
+T YPE
+
+ITimeInterval
+
+D ES CR IPTIO N
+
+Interface IVideoStreamExportResult
+The results of the video stream export operation.
+Inhe ri te d Me m be rs
+
+IVideoExportResult.Meta
+IResult.ErrorMessage
+IResult.IsSuccess
+N am e spac e : A r c .A pi.M e dia
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public interface IVideoStreamExportResult : IVideoExportResult, IResult
+
+P roperties
+V ideos
+Gets a list of exported MP4 video chunks as System.Byte arrays.
+De c l arati on
+IReadOnlyList Videos { get; }
+P r o p e r t y Va l u e
+T YPE
+
+IReadOnlyList
+
+D ES CR IPTIO N
+
+Class MediaFrameBase
+Media frame base class, which provides shared functionality between video and audio frames.
+Inhe ri tanc e
+
+System.Object
+MediaFrameBase
+Inhe ri te d Me m be rs
+
+System.Object.ToString()
+System.Object.Equals(System.Object)
+System.Object.Equals(System.Object, System.Object)
+System.Object.ReferenceEquals(System.Object, System.Object)
+System.Object.GetHashCode()
+System.Object.GetType()
+System.Object.MemberwiseClone()
+N am e spac e : A r c .A pi.M e dia
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public abstract class MediaFrameBase
+
+Methods
+I nitializeFromSourceFrame ( I MediaFrame )
+De c l arati on
+public abstract void InitializeFromSourceFrame(IMediaFrame sourceMediaFrame)
+Param e te rs
+T YPE
+
+NAME
+
+Cadwell.Core.Media.Domain.IMediaFrame
+
+sourceMediaFrame
+
+D ES CR IPTIO N
+
+Enum VideoExportOption
+Specifies the instructions on how to export the video.
+N am e spac e : A r c .A pi.M e dia
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public enum VideoExportOption
+
+Fields
+NAME
+
+D ES CR IPTIO N
+
+Full
+
+Create a single video that replaces gaps with black frames of equivalent duration.
+
+Shrink
+
+Create a single video that ignores all gaps (i.e. a tightly packed video).
+
+Split
+
+Create a new video chunk every time a gap is detected.
+
+Namespace Arc.Api.Montages
+I nterfaces
+I AverageReferenceI nfo
+Provides access to average reference information.
+I Montage
+Provides access to a specific montage.
+I Trace
+Provides access to information on a specific trace.
+I TraceContainer
+Provides access to a container of overlapping traces.
+
+Interface IAverageReferenceInfo
+Provides access to average reference information.
+N am e spac e : A r c .A pi.M on tage s
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public interface IAverageReferenceInfo
+
+P roperties
+I nput
+Gets the name of the average reference input.
+De c l arati on
+string Input { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.String
+
+Weight
+Gets the weight (or multiplier) for this input when used in an average reference.
+De c l arati on
+float Weight { get; }
+P r o p e r t y Va l u e
+T YPE
+
+System.Single
+
+D ES CR IPTIO N
+
+Interface IMontage
+Provides access to a specific montage.
+N am e spac e : A r c .A pi.M on tage s
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public interface IMontage
+
+P roperties
+AsV iewed
+Gets the time of montage use relative to the beginning of the record.
+De c l arati on
+ITimeInterval AsViewed { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+ITimeInterval
+
+Name
+Gets the name of the montage.
+De c l arati on
+string Name { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.String
+
+TraceContainers
+Gets a list of ITraceContainer for this montage.
+De c l arati on
+IReadOnlyList TraceContainers { get; }
+P r o p e r t y Va l u e
+T YPE
+
+IReadOnlyList
+
+D ES CR IPTIO N
+
+Interface ITrace
+Provides access to information on a specific trace.
+N am e spac e : A r c .A pi.M on tage s
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public interface ITrace
+
+P roperties
+Active
+Gets the name of the active channel.
+De c l arati on
+string Active { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.String
+
+AverageReferenceI nfo
+Gets the list of IAverageReferenceInfo.
+The list will only contain values if IsAverageReference is true.
+De c l arati on
+IReadOnlyList AverageReferenceInfo { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+IReadOnlyList
+
+Color
+Gets the color of the trace in ARGB format.
+Packed as: a<<24 | r<<16 | g<<8 | b
+De c l arati on
+int Color { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Int32
+
+H icut
+Gets the high frequency cutoff (low pass filter) applied to the trace (in Hz).
+De c l arati on
+double Hicut { get; }
+
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Double
+
+I sAverageReference
+Gets a value indicating whether or not the reference is an average reference. See AverageReferenceInfo for more details.
+De c l arati on
+bool IsAverageReference { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Boolean
+
+Locut
+Gets the low frequency cutoff (high pass filter) applied to the trace (in Hz).
+De c l arati on
+double Locut { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Double
+
+Name
+Gets the name of the trace.
+De c l arati on
+string Name { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.String
+
+NotchOn
+Gets a value indicating whether or not a notch filter was applied at the mains frequency (50 or 60 Hz).
+De c l arati on
+bool NotchOn { get; }
+P r o p e r t y Va l u e
+T YPE
+
+System.Boolean
+
+Reference
+Gets the name of the reference channel.
+De c l arati on
+string Reference { get; }
+
+D ES CR IPTIO N
+
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.String
+
+Sensitivity
+Gets the sensitivity setting (in uV/mm) applied to the trace.
+De c l arati on
+double Sensitivity { get; }
+P r o p e r t y Va l u e
+T YPE
+
+System.Double
+
+D ES CR IPTIO N
+
+Interface ITraceContainer
+Provides access to a container of overlapping traces.
+N am e spac e : A r c .A pi.M on tage s
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public interface ITraceContainer
+
+P roperties
+Id
+Gets a unique identifier for this container.
+De c l arati on
+Guid Id { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Guid
+
+Traces
+Gets a list of ITrace for this container.
+If there are multiple traces, then they are displayed as overlapped traces.
+If the list is empty, this container represents a blank space.
+De c l arati on
+IReadOnlyList Traces { get; }
+P r o p e r t y Va l u e
+T YPE
+
+IReadOnlyList
+
+D ES CR IPTIO N
+
+Namespace Arc.Api.Patients
+I nterfaces
+I Patient
+Provides access to patient information.
+I PatientFieldD efinitionKeys
+Provides a list of known PrimaryKey values for accessing default patient fields in Fields.
+
+Interface IPatient
+Provides access to patient information.
+N am e spac e : A r c .A pi.Patie n ts
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public interface IPatient
+
+P roperties
+D efaultFieldD efinitionKeys
+Gets a list of known PrimaryKey values for accessing default patient fields in Fields.
+De c l arati on
+IPatientFieldDefinitionKeys DefaultFieldDefinitionKeys { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+IPatientFieldDefinitionKeys
+
+Fields
+Gets a list of fields for this patient. Default fields can be referenced using values from DefaultFieldDefinitionKeys.
+De c l arati on
+IFieldList Fields { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+IFieldList
+
+PatientKey
+Gets the unique identifier for this patient.
+De c l arati on
+Guid PatientKey { get; }
+P r o p e r t y Va l u e
+T YPE
+
+System.Guid
+
+D ES CR IPTIO N
+
+Interface IPatientFieldDefinitionKeys
+Provides a list of known PrimaryKey values for accessing default patient fields in Fields.
+N am e spac e : A r c .A pi.Patie n ts
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public interface IPatientFieldDefinitionKeys
+
+P roperties
+Age
+Gets the unique PrimaryKey value for the patient's Age.
+De c l arati on
+Guid Age { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Guid
+
+B irthdate
+Gets the unique PrimaryKey value for the patient's Birthdate.
+De c l arati on
+Guid Birthdate { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Guid
+
+FirstName
+Gets the unique PrimaryKey value for the patient's First Name.
+De c l arati on
+Guid FirstName { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Guid
+
+H andedness
+Gets the unique PrimaryKey value for the patient's Handedness.
+De c l arati on
+Guid Handedness { get; }
+P r o p e r t y Va l u e
+
+T YPE
+
+D ES CR IPTIO N
+
+System.Guid
+
+LastName
+Gets the unique PrimaryKey value for the patient's Last Name.
+De c l arati on
+Guid LastName { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Guid
+
+MiddleName
+Gets the unique PrimaryKey value for the patient's Middle Name.
+De c l arati on
+Guid MiddleName { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Guid
+
+OtherI d
+Gets the unique PrimaryKey value for the patient's Other ID.
+De c l arati on
+Guid OtherId { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Guid
+
+PatientI d
+Gets the unique PrimaryKey value for the patient's PatientID.
+De c l arati on
+Guid PatientId { get; }
+P r o p e r t y Va l u e
+T YPE
+
+System.Guid
+
+P hoto
+Gets the unique PrimaryKey value for the patient's Photo.
+De c l arati on
+Guid Photo { get; }
+
+D ES CR IPTIO N
+
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Guid
+
+Sex
+Gets the unique PrimaryKey value for the patient's Sex.
+De c l arati on
+Guid Sex { get; }
+P r o p e r t y Va l u e
+T YPE
+
+System.Guid
+
+D ES CR IPTIO N
+
+Namespace Arc.Api.Records
+I nterfaces
+I Record
+Provides access to a single patient record.
+I RecordCountB yYear
+Provides a record count for a specific year.
+I RecordD ata
+Provides access to detailed record data.
+I RecordFieldD efinitionKeys
+Provides a list of known PrimaryKey values for accessing default record fields in Fields.
+I RecordI mportResult
+Represents the current progress of a record import operation.
+
+Interface IRecord
+Provides access to a single patient record.
+Inhe ri te d Me m be rs
+
+System.IDisposable.Dispose()
+N am e spac e : A r c .A pi.Re c or ds
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public interface IRecord : IDisposable
+
+P roperties
+D ata
+Gets the detailed data from this record.
+NOTE: Open() must be called to access this data. Calling Close() or System.IDisposable.Dispose() will release access.
+De c l arati on
+IRecordData Data { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+IRecordData
+
+D ataAcquisitionMachine
+Gets the name of the data acquisition machine.
+De c l arati on
+string DataAcquisitionMachine { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.String
+
+D ateRecorded
+Gets the date (in UTC) of when this record was created.
+De c l arati on
+DateTime DateRecorded { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.DateTime
+
+D efaultFieldD efinitionKeys
+Gets a list of known PrimaryKey values for accessing default record fields in Fields.
+De c l arati on
+IRecordFieldDefinitionKeys DefaultFieldDefinitionKeys { get; }
+
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+IRecordFieldDefinitionKeys
+
+D uration
+Gets the total duration of this record.
+NOTE: This value excludes gaps from the total time.
+De c l arati on
+ITimeInterval Duration { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+ITimeInterval
+
+EventTypes
+Gets a list of event type names as System.String items.
+De c l arati on
+IReadOnlyList EventTypes { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+IReadOnlyList
+Re m ark s
+
+Default available event types: AmpErrorEvent, AmpLeakageAlarmEvent, AmpSaturation, AmpTemperatureAlarmEvent,
+AmpTimeSyncErrorEvent, CorticalStimStart, CorticalStimStop, CorticalStimSuppress, DeviceConnection, LowBatteryEvent,
+PhoticStimEvent, BaselineImpedanceEvent, CalibrationEvent, UserClipEvent, HyperventilationEvent,
+IncrementalHyperventilationEvent, ImpedanceEvent, ContinuousImpedanceEvent, LiveReviewCommand, MontageEvent,
+PaperSpeedEvent, RecordingOnOff, RoomAutoInfo, SnapshotEvent, AutoRestart, SwitchCamera, SwitchUser, TimerEvent,
+VoiceEvent, TimeRangeSeizureEvent, SpikeEvent, PatientEvent, EventButton, EventAcknowledgedEvent, Annotation, Comment,
+UserEvent, Persyst Comment, Persyst RhythmicBurst, Persyst SeizureDetected, Persyst Spike, Persyst SpikeBurst
+Fields
+Gets a list of fields for this record. Default fields can be referenced using values from DefaultFieldDefinitionKeys.
+De c l arati on
+IFieldList Fields { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+IFieldList
+
+I sD isposed
+Gets a value indicating whether or not the object has been disposed.
+De c l arati on
+bool IsDisposed { get; }
+
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Boolean
+
+I sExported
+Gets a value indicating whether or not this is an exported record.
+De c l arati on
+bool IsExported { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Boolean
+
+I sLocalActiveRecording
+Gets a value indicating whether or not this record is being actively recorded on this machine.
+De c l arati on
+bool IsLocalActiveRecording { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Boolean
+
+I sOpen
+Gets a value indicating whether or not this record is open to access detailed record data.
+De c l arati on
+bool IsOpen { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Boolean
+
+Patient
+Gets the patient associated with the record.
+De c l arati on
+IPatient Patient { get; }
+P r o p e r t y Va l u e
+T YPE
+
+IPatient
+
+RecordKey
+Gets the unique identifier for the record.
+De c l arati on
+Guid RecordKey { get; }
+
+D ES CR IPTIO N
+
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Guid
+
+StudyStatus
+Gets the study status as seen on the grid in the Studies tab.
+De c l arati on
+string StudyStatus { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.String
+
+StudyType
+Gets the study type of this record.
+De c l arati on
+IStudyType StudyType { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+IStudyType
+
+Methods
+Close ()
+Closes access to the detailed record data via Data.
+NOTE: Calling System.IDisposable.Dispose() will also close this record.
+De c l arati on
+IResult Close()
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+IResult
+
+D eletePermanently ()
+Permanently deletes this record.
+NOTE: This record is automatically disposed upon successful deletion of the record.
+De c l arati on
+IResult DeletePermanently()
+Re turns
+T YPE
+
+IResult
+
+D ES CR IPTIO N
+
+Re m ark s
+
+This method is available in version 3.2 and later.
+Open ()
+Opens access to the detailed record data via Data.
+De c l arati on
+IResult Open()
+Re turns
+T YPE
+
+IResult
+
+D ES CR IPTIO N
+
+Interface IRecordCountByYear
+Provides a record count for a specific year.
+N am e spac e : A r c .A pi.Re c or ds
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public interface IRecordCountByYear
+
+P roperties
+RecordCount
+Gets a record count for the specified Year.
+De c l arati on
+int RecordCount { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Int32
+
+Year
+Gets the year associated with the RecordCount.
+De c l arati on
+int Year { get; }
+P r o p e r t y Va l u e
+T YPE
+
+System.Int32
+
+D ES CR IPTIO N
+
+Interface IRecordData
+Provides access to detailed record data.
+N am e spac e : A r c .A pi.Re c or ds
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public interface IRecordData
+
+P roperties
+ChannelI nformation
+Gets a list of IChannelInfo.
+De c l arati on
+IReadOnlyList ChannelInformation { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+IReadOnlyList
+
+MediaService
+Gets the service for accessing media data.
+De c l arati on
+IMediaService MediaService { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+IMediaService
+
+RecordingD uration
+Gets the total duration of the recording from the start to the last recorded frame.
+NOTE: This value is only changed by recording more data, and the recording start offset is assumed to be zero.
+NOTE: This value does NOT exclude gaps. For a duration that excludes gaps, see Duration.
+De c l arati on
+ITimeInterval RecordingDuration { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+ITimeInterval
+
+RecordingStartTime
+Gets the UTC time of the first chunk of data that was recorded. This time never changes once recording has started.
+De c l arati on
+DateTime RecordingStartTime { get; }
+
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.DateTime
+
+RecordingTimeZoneOffset
+Gets the time difference between the time zone in which the record was created and UTC.
+De c l arati on
+ITimeInterval RecordingTimeZoneOffset { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+ITimeInterval
+
+Methods
+AddAnnotation ( String, D ouble, D ouble )
+Creates a new annotation event.
+De c l arati on
+IEventResult AddAnnotation(string text, double startOffset, double endOffset)
+Param e te rs
+T YPE
+
+NAME
+
+D ES CR IPTIO N
+
+System.String
+
+text
+
+The display text for the event.
+
+System.Double
+
+startOffset
+
+The event start time (in seconds).
+NOTE: Any value outside the bounds of the recorded data will be automatically adjusted to the boundary.
+
+System.Double
+
+endOffset
+
+The event end time (in seconds).
+NOTE: Any value outside the bounds of the recorded data will be automatically adjusted to the boundary.
+NOTE: A minimum duration of 1 second is enforced and automatically corrected.
+
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+IEventResult
+
+A value indicating success or failure with an optional error message.
+
+AddAssociatedD ocument ( String )
+Adds an associated document to this record.
+De c l arati on
+IResult AddAssociatedDocument(string filePath)
+Param e te rs
+T YPE
+
+NAME
+
+D ES CR IPTIO N
+
+System.String
+
+filePath
+
+The file path to the associated document.
+
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+IResult
+
+A value indicating success or failure with an optional error message.
+
+AddComment ( String, D ouble, I nt32, I TraceContainer )
+
+Creates a new comment event.
+De c l arati on
+IEventResult AddComment(string text, double offset, int eventPriority, ITraceContainer traceContainer)
+Param e te rs
+T YPE
+
+NAME
+
+D ES CR IPTIO N
+
+System.String
+
+text
+
+The display text for the event.
+
+System.Double
+
+offset
+
+The event time (in seconds).
+NOTE: Any value outside the bounds of the recorded data will be automatically adjusted to the boundary.
+
+System.Int32
+
+eventPriority
+
+The priority of the event (limited to a value ranging from 0 to 4).
+
+ITraceContainer traceContainer An optional trace container to associate the event to. If null, no association is made.
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+IEventResult
+
+A value indicating success or failure with an optional error message.
+
+AddPersystEvent ( PersystEventType, String, D ouble, D ouble, I TraceContainer )
+Creates a new Persyst event.
+NOTE: This method is only intended for use by Persyst.
+De c l arati on
+IEventResult AddPersystEvent(PersystEventType eventType, string text, double startOffset, double endOffset,
+ITraceContainer traceContainer)
+Param e te rs
+T YPE
+
+NAME
+
+D ES CR IPTIO N
+
+PersystEventType
+
+eventType
+
+The type of Persyst event.
+
+System.String
+
+text
+
+The display text for the event.
+
+System.Double
+
+startOffset
+
+The event start time (in seconds).
+
+System.Double
+
+endOffset
+
+The event end time (in seconds).
+
+ITraceContainer
+
+traceContainer
+
+An optional trace container to associate the event to. If null, no association is made.
+
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+IEventResult
+
+A value indicating success or failure with an optional error message.
+
+AddUserEvent ( String, D ouble, I nt32, I TraceContainer )
+Creates a new user event.
+De c l arati on
+IEventResult AddUserEvent(string name, double offset, int eventPriority, ITraceContainer traceContainer)
+Param e te rs
+T YPE
+
+NAME
+
+D ES CR IPTIO N
+
+System.String
+
+name
+
+The name for the event. Examples: Awake, Blink, Talk.
+
+T YPE
+
+NAME
+
+D ES CR IPTIO N
+
+System.Double
+
+offset
+
+The event time (in seconds).
+NOTE: Any value outside the bounds of the recorded data will be automatically adjusted to the boundary.
+
+System.Int32
+
+eventPriority
+
+The priority of the event (limited to a value ranging from 0 to 4).
+
+ITraceContainer traceContainer An optional trace container to associate the event to. If null, no association is made.
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+IEventResult
+
+A value indicating success or failure with an optional error message.
+
+D eleteEvent ( G uid )
+Deletes the event associated with the given ID.
+De c l arati on
+IResult DeleteEvent(Guid eventID)
+Param e te rs
+T YPE
+
+NAME
+
+D ES CR IPTIO N
+
+System.Guid
+
+eventID
+
+The unique identifier of the event to delete.
+
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+IResult
+
+A value indicating success or failure with an optional error message.
+
+ExportToEdf ( String )
+Export this record to an EDF file.
+De c l arati on
+IResult ExportToEdf(string edfFilePath)
+Param e te rs
+T YPE
+
+NAME
+
+D ES CR IPTIO N
+
+System.String
+
+edfFilePath
+
+The path of the EDF file to be exported.
+
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+IResult
+
+IResult representing success or failure of the export.
+
+ExportToEdf ( String, I nt32, I nt32 )
+Export the given range of this record to an EDF file.
+De c l arati on
+IResult ExportToEdf(string edfFilePath, int startOffset, int endOffset)
+Param e te rs
+T YPE
+
+NAME
+
+D ES CR IPTIO N
+
+System.String
+
+edfFilePath
+
+The path of the EDF file to be exported.
+
+System.Int32
+
+startOffset
+
+The start offset of the export in seconds. Less than or equal to 0 to start at the beginning.
+
+T YPE
+
+NAME
+
+D ES CR IPTIO N
+
+System.Int32
+
+endOffset
+
+The end offset of the export in seconds. Less than or equal to 0 to export to the end of the record.
+
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+IResult
+
+IResult representing success or failure of the export.
+
+G etAssociatedD ocuments ()
+Gets the associated documents for this record.
+De c l arati on
+IReadOnlyList GetAssociatedDocuments()
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+IReadOnlyList
+
+A list of IAssociatedDocument.
+
+G etCommonReferenceD ata ()
+Gets the common reference data for this record.
+De c l arati on
+IReadOnlyList GetCommonReferenceData()
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+IReadOnlyList
+
+A list of ICommonReference.
+
+G etCorticalStimEvents ()
+Gets a list of cortical stimulation events for the record.
+De c l arati on
+IReadOnlyList GetCorticalStimEvents()
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+IReadOnlyList
+
+A list of .
+
+G etD iscontinuousWaveformD ata ( I nt32, I nt32 )
+Gets the waveform data for the requested time frame.
+Gaps within the requested time frame will be represented in the results as separate IWaveformData segments in WaveformData.
+De c l arati on
+IReadOnlyList GetDiscontinuousWaveformData(int offset, int duration)
+Param e te rs
+T YPE
+
+NAME
+
+D ES CR IPTIO N
+
+System.Int32
+
+offset
+
+Start offset (in seconds) relative to the beginning of the record to begin retrieving data.
+
+System.Int32
+
+duration
+
+The duration of data requested (in seconds).
+
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+IReadOnlyList
+
+A list of IChannelData.
+
+G etEvent ( G uid )
+Gets the event associated with the given ID.
+De c l arati on
+IEvent GetEvent(Guid eventID)
+Param e te rs
+T YPE
+
+NAME
+
+D ES CR IPTIO N
+
+System.Guid
+
+eventID
+
+The unique identifier of the event to retrieve.
+
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+IEvent
+
+The event, if found.
+
+G etEvents ()
+Gets the events for this record.
+De c l arati on
+IReadOnlyList GetEvents()
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+IReadOnlyList
+
+A list of IEvent.
+
+G etEvents ( I nt32, I nt32, String [])
+Gets the events that started between the specified offsets for this record, optionally filtered by a list of event types.
+De c l arati on
+IReadOnlyList GetEvents(int startOffset, int endOffset, string[] eventTypes)
+Param e te rs
+T YPE
+
+NAME
+
+System.Int32
+
+startOffset Start offset (in seconds) relative to the beginning of the record.
+
+System.Int32
+
+endOffset
+
+System.String[] eventTypes
+
+D ES CR IPTIO N
+
+End offset (in seconds) relative to the beginning of the record.
+Event types to filter on. If null or empty, no event type filter is applied. Default event types are documented at
+EventTypes.
+
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+IReadOnlyList
+
+A list of IEvent.
+
+G etI mpedances ( I nt32, I nt32 )
+Get the impedance data for this record.
+De c l arati on
+
+IReadOnlyList GetImpedances(int offset, int duration)
+Param e te rs
+T YPE
+
+NAME
+
+D ES CR IPTIO N
+
+System.Int32
+
+offset
+
+Start offset (in seconds) relative to the beginning of the record to begin retrieving impedances.
+
+System.Int32
+
+duration
+
+The duration of data requested (in seconds).
+
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+IReadOnlyList
+
+A list of IImpedance.
+
+G etMontages ( B oolean )
+Gets the montages for this record.
+De c l arati on
+IReadOnlyList GetMontages(bool uniqueOnly)
+Param e te rs
+T YPE
+
+NAME
+
+D ES CR IPTIO N
+
+System.Boolean
+
+uniqueOnly
+
+A value indicating whether or not to retrieve unique montages only.
+
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+IReadOnlyList
+
+A list of IMontage.
+
+G etPersystEventTypeText ( PersystEventType )
+Gets the EventType text associated with the given Persyst event type.
+De c l arati on
+string GetPersystEventTypeText(PersystEventType eventType)
+Param e te rs
+T YPE
+
+NAME
+
+D ES CR IPTIO N
+
+PersystEventType
+
+eventType
+
+The type of Persyst event.
+
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+System.String
+
+The associated EventType text.
+
+G etRecordingTimeFromOffset ( I nt32 )
+Gets the UTC time for the given offset.
+De c l arati on
+DateTime GetRecordingTimeFromOffset(int offset)
+Param e te rs
+T YPE
+
+NAME
+
+D ES CR IPTIO N
+
+System.Int32
+
+offset
+
+Offset (in seconds) relative to the beginning of the record.
+
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+System.DateTime
+
+The UTC time for the given offset.
+
+Re m ark s
+
+This method is available in version 3.2 and later.
+G etTimeSegments ()
+Gets a list of time segments that represent contiguous data blocks.
+De c l arati on
+IReadOnlyList GetTimeSegments()
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+IReadOnlyList
+
+A list of ITimeSegment.
+
+G etWaveformD ata ( I nt32, I nt32 )
+Gets the contiguous waveform data for the requested time frame.
+Data will be returned up to the specified duration or until a gap is encountered.
+De c l arati on
+IReadOnlyList GetWaveformData(int offset, int duration)
+Param e te rs
+T YPE
+
+NAME
+
+D ES CR IPTIO N
+
+System.Int32
+
+offset
+
+Start offset (in seconds) relative to the beginning of the record to begin retrieving data.
+
+System.Int32
+
+duration
+
+The duration of data requested (in seconds).
+
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+IReadOnlyList
+
+A list of IWaveformData.
+
+Re m ark s
+
+Not for new designs. This method only exists for backwards compatability.
+This method will return data for each channel up to the requested end offset (based on ), the first gap or first saturation event,
+whichever comes first. Use GetDiscontinuousWaveformData(Int32, Int32) instead.
+
+Interface IRecordFieldDefinitionKeys
+Provides a list of known PrimaryKey values for accessing default record fields in Fields.
+N am e spac e : A r c .A pi.Re c or ds
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public interface IRecordFieldDefinitionKeys
+
+P roperties
+B mi
+Gets the unique PrimaryKey value for the record's BMI.
+De c l arati on
+Guid Bmi { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Guid
+
+Comments
+Gets the unique PrimaryKey value for the record's Comments.
+De c l arati on
+Guid Comments { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Guid
+
+D iagnoses
+Gets the unique PrimaryKey value for the record's Diagnoses.
+De c l arati on
+Guid Diagnoses { get; }
+P r o p e r t y Va l u e
+T YPE
+
+System.Guid
+
+Facility
+Gets the unique PrimaryKey value for the record's Facility.
+De c l arati on
+Guid Facility { get; }
+P r o p e r t y Va l u e
+
+D ES CR IPTIO N
+
+T YPE
+
+D ES CR IPTIO N
+
+System.Guid
+
+H eight
+Gets the unique PrimaryKey value for the record's Height.
+De c l arati on
+Guid Height { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Guid
+
+H istory
+Gets the unique PrimaryKey value for the record's Patient History.
+De c l arati on
+Guid History { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Guid
+
+Medications
+Gets the unique PrimaryKey value for the record's Medications.
+De c l arati on
+Guid Medications { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Guid
+
+P hoto
+Gets the unique PrimaryKey value for the record's Photo.
+De c l arati on
+Guid Photo { get; }
+P r o p e r t y Va l u e
+T YPE
+
+System.Guid
+
+P hysician
+Gets the unique PrimaryKey value for the record's Physician.
+De c l arati on
+Guid Physician { get; }
+
+D ES CR IPTIO N
+
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Guid
+
+P rocedures
+Gets the unique PrimaryKey value for the record's Procedures.
+De c l arati on
+Guid Procedures { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Guid
+
+ReferringP hysician
+Gets the unique PrimaryKey value for the record's Referring Physician.
+De c l arati on
+Guid ReferringPhysician { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Guid
+
+Room
+Gets the unique PrimaryKey value for the record's Room.
+De c l arati on
+Guid Room { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Guid
+
+Weight
+Gets the unique PrimaryKey value for the record's Weight.
+De c l arati on
+Guid Weight { get; }
+P r o p e r t y Va l u e
+T YPE
+
+System.Guid
+
+D ES CR IPTIO N
+
+Interface IRecordImportResult
+Represents the current progress of a record import operation.
+N am e spac e : A r c .A pi.Re c or ds
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public interface IRecordImportResult
+Re m ark s
+
+This interface is available in version 3.2 and later.
+P roperties
+ErrorMessage
+Gets the error message of the import operation, if any.
+De c l arati on
+string ErrorMessage { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.String
+
+I sFinished
+Gets a value indicating whether or not the import operation is finished.
+De c l arati on
+bool IsFinished { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Boolean
+
+P rogress
+Gets the progress of the import operation as a percentage (0-100).
+De c l arati on
+int Progress { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Int32
+
+RecordKeys
+Gets a list of the record keys involved in this import operations. Each item is a System.Guid.
+De c l arati on
+IReadOnlyList RecordKeys { get; }
+
+P r o p e r t y Va l u e
+T YPE
+
+IReadOnlyList
+
+D ES CR IPTIO N
+
+Namespace Arc.Api.Studies
+I nterfaces
+I StudyType
+Provides access to study type information.
+
+Interface IStudyType
+Provides access to study type information.
+N am e spac e : A r c .A pi.Stu die s
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public interface IStudyType
+
+P roperties
+Name
+Gets the name of the study type.
+De c l arati on
+string Name { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.String
+
+P rimaryKey
+Gets the unique identifier of the study type.
+De c l arati on
+Guid PrimaryKey { get; }
+P r o p e r t y Va l u e
+T YPE
+
+System.Guid
+
+D ES CR IPTIO N
+
+Namespace FlexComApi
+I nterfaces
+I ComChannelI nfo
+Provides access to channel information.
+I ComChannelI nfo2
+Provides access to channel information.
+I ComChannelList
+Provides access to a list of channels.
+I ComCommonReference
+Provides access to common reference information.
+I ComCommonReferenceList
+Provides access to a list of common references.
+I ComEvent
+Provides access to a single event.
+I ComEventList
+Provides access to a list of events.
+I ComFlexPatient
+Provides access to patient information.
+I ComFlexRecord
+Provides legacy access to a single patient record by creating a ComFlexRecord instance.
+It is recommended that future API usage convert entirely to using IArcApi instead of the legacy IComFlexRecord.
+I ComFlexRecord2
+Provides legacy access to a single patient record by creating a ComFlexRecord instance.
+It is recommended that future API usage convert entirely to using IArcApi instead of the legacy IComFlexRecord2.
+I ComTimeSegment
+Represents a block of time relative to the beginning of the record.
+I ComTimeSegmentList
+Provides access to a list of time segments.
+I ComWaveformChannelD ata
+Provides access to waveform data and channel information.
+I ComWaveformChannelD ata2
+Provides access to waveform data and channel information.
+I ComWaveformD ata
+Provides access to a list of waveform data and channel information.
+
+Provides access to a list of waveform data and channel information.
+
+Interface IComChannelInfo
+Provides access to channel information.
+N am e spac e : Fle x C om A pi
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public interface IComChannelInfo
+
+P roperties
+ChannelName
+Gets the name of the channel for display purposes.
+De c l arati on
+string ChannelName { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.String
+
+ChannelNumber
+Gets the channel number.
+De c l arati on
+int ChannelNumber { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Int32
+
+SamplePeriodI nMS
+Gets the time interval between each data point (in milliseconds).
+De c l arati on
+int SamplePeriodInMS { get; }
+P r o p e r t y Va l u e
+T YPE
+
+System.Int32
+
+D ES CR IPTIO N
+
+Interface IComChannelInfo2
+Provides access to channel information.
+Inhe ri te d Me m be rs
+
+IComChannelInfo.ChannelName
+IComChannelInfo.ChannelNumber
+IComChannelInfo.SamplePeriodInMS
+N am e spac e : Fle x C om A pi
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public interface IComChannelInfo2 : IComChannelInfo
+
+P roperties
+SamplePeriodI nMS AsD ouble
+Gets the time interval between each data point (in milliseconds).
+De c l arati on
+double SamplePeriodInMSAsDouble { get; }
+P r o p e r t y Va l u e
+T YPE
+
+System.Double
+
+D ES CR IPTIO N
+
+Interface IComChannelList
+Provides access to a list of channels.
+N am e spac e : Fle x C om A pi
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public interface IComChannelList
+
+Methods
+G etAt ( I nt32 )
+Gets the item at the given index in the list.
+De c l arati on
+IComChannelInfo GetAt(int index)
+Param e te rs
+T YPE
+
+NAME
+
+System.Int32
+
+index
+
+D ES CR IPTIO N
+
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+IComChannelInfo
+
+G etCount ()
+Gets the number of items in the list.
+De c l arati on
+int GetCount()
+Re turns
+T YPE
+
+System.Int32
+
+D ES CR IPTIO N
+
+Interface IComCommonReference
+Provides access to common reference information.
+N am e spac e : Fle x C om A pi
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public interface IComCommonReference
+
+P roperties
+ChannelName
+Gets the channel name of the common reference.
+De c l arati on
+string ChannelName { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.String
+
+Offset
+Gets the offset (in seconds) of when this common reference was applied relative to the beginning of the record.
+De c l arati on
+int Offset { get; }
+P r o p e r t y Va l u e
+T YPE
+
+System.Int32
+
+D ES CR IPTIO N
+
+Interface IComCommonReferenceList
+Provides access to a list of common references.
+N am e spac e : Fle x C om A pi
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public interface IComCommonReferenceList
+
+Methods
+G etAt ( I nt32 )
+Gets the item at the given index in the list.
+De c l arati on
+IComCommonReference GetAt(int index)
+Param e te rs
+T YPE
+
+NAME
+
+System.Int32
+
+index
+
+D ES CR IPTIO N
+
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+IComCommonReference
+
+G etCount ()
+Gets the number of items in the list.
+De c l arati on
+int GetCount()
+Re turns
+T YPE
+
+System.Int32
+
+D ES CR IPTIO N
+
+Interface IComEvent
+Provides access to a single event.
+N am e spac e : Fle x C om A pi
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public interface IComEvent
+
+P roperties
+D uration
+Gets the duration of the event in milliseconds.
+De c l arati on
+long Duration { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Int64
+
+EventType
+Gets the type of event.
+See EventTypes for a list of known event types.
+De c l arati on
+string EventType { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.String
+
+Offset
+Gets the offset of the event in milliseconds relative to the beginning of the record.
+De c l arati on
+long Offset { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Int64
+
+P riority
+Gets the priority of the event (-1 = no priority, 0 = lowest priority, 4 = highest priority).
+De c l arati on
+int Priority { get; }
+P r o p e r t y Va l u e
+
+T YPE
+
+D ES CR IPTIO N
+
+System.Int32
+
+Text
+Gets the descriptive text for the event.
+De c l arati on
+string Text { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.String
+
+UserI D
+Gets the unique identifier of the user who added the event.
+De c l arati on
+Guid UserID { get; }
+P r o p e r t y Va l u e
+T YPE
+
+System.Guid
+
+D ES CR IPTIO N
+
+Interface IComEventList
+Provides access to a list of events.
+N am e spac e : Fle x C om A pi
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public interface IComEventList
+
+Methods
+G etAt ( I nt32 )
+Gets the item at the given index in the list.
+De c l arati on
+IComEvent GetAt(int index)
+Param e te rs
+T YPE
+
+NAME
+
+System.Int32
+
+index
+
+D ES CR IPTIO N
+
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+IComEvent
+
+G etCount ()
+Gets the number of items in the list.
+De c l arati on
+int GetCount()
+Re turns
+T YPE
+
+System.Int32
+
+D ES CR IPTIO N
+
+Interface IComFlexPatient
+Provides access to patient information.
+N am e spac e : Fle x C om A pi
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public interface IComFlexPatient
+
+P roperties
+D ateOfB irth
+Gets the patient's date of birth or returns System.DateTime.MinValue if the date was not set.
+De c l arati on
+DateTime DateOfBirth { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.DateTime
+
+FirstName
+Gets the first name of the patient.
+De c l arati on
+string FirstName { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.String
+
+G ender
+Gets the gender of the patient.
+0 - Male
+1 - Female
+2 - Unspecified
+De c l arati on
+int Gender { get; }
+P r o p e r t y Va l u e
+T YPE
+
+System.Int32
+
+LastName
+Gets the last name of the patient.
+De c l arati on
+
+D ES CR IPTIO N
+
+string LastName { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.String
+
+MiddleName
+Gets the middle name of the patient.
+De c l arati on
+string MiddleName { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.String
+
+PatientI d
+Gets the hospital ID of the patient.
+De c l arati on
+string PatientId { get; }
+P r o p e r t y Va l u e
+T YPE
+
+System.String
+
+D ES CR IPTIO N
+
+Interface IComFlexRecord
+Provides legacy access to a single patient record by creating a ComFlexRecord instance.
+It is recommended that future API usage convert entirely to using IArcApi instead of the legacy IComFlexRecord.
+N am e spac e : Fle x C om A pi
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public interface IComFlexRecord
+
+P roperties
+ChannelCount
+Gets the number of channels.
+De c l arati on
+int ChannelCount { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Int32
+
+D ataAcquisitionMachine
+Gets the name of the data acquisition machine.
+De c l arati on
+string DataAcquisitionMachine { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.String
+
+Key
+Gets the unique identifier for the record.
+De c l arati on
+Guid Key { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Guid
+
+RecordLength
+Gets the total duration of the record from its start time to end time (in seconds).
+NOTE: This value does NOT exclude gaps.
+De c l arati on
+int RecordLength { get; }
+
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Int32
+
+RecordStartD ateTime
+Gets the 'As Recorded' starting time of the record based on the timezone in which the record was created.
+De c l arati on
+DateTime RecordStartDateTime { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.DateTime
+
+Methods
+AreRecordsOpenLocally ()
+Gets a value indicating whether or not any records are open on this machine.
+De c l arati on
+bool AreRecordsOpenLocally()
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+System.Boolean
+
+A bool value indicating whether or not any records are open on this machine
+
+CloseRecord ()
+Closes the open record (if any).
+De c l arati on
+void CloseRecord()
+
+G etChannelI nfo ()
+Gets the channel information.
+De c l arati on
+IComChannelList GetChannelInfo()
+Re turns
+T YPE
+
+IComChannelList
+
+G etCommonReferenceList ()
+Gets the common reference information.
+De c l arati on
+IComCommonReferenceList GetCommonReferenceList()
+Re turns
+
+D ES CR IPTIO N
+
+T YPE
+
+D ES CR IPTIO N
+
+IComCommonReferenceList
+
+G etD ata ( I nt32, I nt32 )
+Gets the contiguous waveform data for the requested time frame.
+Data will be returned up to the specified duration or until a gap is encountered.
+De c l arati on
+IComWaveformData GetData(int offset, int duration)
+Param e te rs
+T YPE
+
+NAME
+
+D ES CR IPTIO N
+
+System.Int32
+
+offset
+
+Waveform data returned will start at or after this offset time (in seconds).
+The offset time is relative to the beginning of the record.
+
+System.Int32
+
+duration
+
+The duration of data (in seconds) requested.
+
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+IComWaveformData
+
+The waveform data.
+
+G etEventList ()
+Gets the current set of events.
+De c l arati on
+IComEventList GetEventList()
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+IComEventList
+
+G etEventListB yOffset ( I nt32 )
+Gets the events that occurred at or after the specified offset.
+De c l arati on
+IComEventList GetEventListByOffset(int offset)
+Param e te rs
+T YPE
+
+NAME
+
+D ES CR IPTIO N
+
+System.Int32
+
+offset
+
+Offset time (in seconds) is relative to the beginning of the record.
+
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+IComEventList
+
+A list of events.
+
+G etEventTypes ()
+Gets a list of event type names.
+De c l arati on
+string[] GetEventTypes()
+
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+System.String[]
+
+G etPatient ()
+Gets the patient associated with the record.
+De c l arati on
+IComFlexPatient GetPatient()
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+IComFlexPatient
+
+G etTimeSegmentList ()
+Gets a list of time segments that represent contiguous data blocks.
+De c l arati on
+IComTimeSegmentList GetTimeSegmentList()
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+IComTimeSegmentList
+
+OpenRecord ( String )
+Open the record associated with the record key in the given external .arc (or .flex) file.
+De c l arati on
+bool OpenRecord(string fileNameAndPath)
+Param e te rs
+T YPE
+
+NAME
+
+D ES CR IPTIO N
+
+System.String
+
+fileNameAndPath
+
+A file path to an external .arc (or .flex) file.
+
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+System.Boolean
+
+A value indicating whether or not the record was successfully opened.
+
+Interface IComFlexRecord2
+Provides legacy access to a single patient record by creating a ComFlexRecord instance.
+It is recommended that future API usage convert entirely to using IArcApi instead of the legacy IComFlexRecord2.
+Inhe ri te d Me m be rs
+
+IComFlexRecord.ChannelCount
+IComFlexRecord.DataAcquisitionMachine
+IComFlexRecord.Key
+IComFlexRecord.RecordLength
+IComFlexRecord.RecordStartDateTime
+IComFlexRecord.GetChannelInfo()
+IComFlexRecord.GetCommonReferenceList()
+IComFlexRecord.GetData(Int32, Int32)
+IComFlexRecord.GetEventList()
+IComFlexRecord.GetEventListByOffset(Int32)
+IComFlexRecord.GetEventTypes()
+IComFlexRecord.GetPatient()
+IComFlexRecord.GetTimeSegmentList()
+IComFlexRecord.OpenRecord(String)
+IComFlexRecord.CloseRecord()
+IComFlexRecord.AreRecordsOpenLocally()
+N am e spac e : Fle x C om A pi
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public interface IComFlexRecord2 : IComFlexRecord
+
+P roperties
+Record
+Gets access to the newer API for this record.
+NOTE: This property only exists as a convenience for legacy API consumers. New API consumers should start with an IArcApi
+session.
+De c l arati on
+IRecord Record { get; }
+P r o p e r t y Va l u e
+T YPE
+
+IRecord
+
+D ES CR IPTIO N
+
+Interface IComTimeSegment
+Represents a block of time relative to the beginning of the record.
+N am e spac e : Fle x C om A pi
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public interface IComTimeSegment
+
+P roperties
+EndOffset
+Gets the end offset (in seconds) of the time segment (relative to the beginning of the record).
+De c l arati on
+int EndOffset { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Int32
+
+StartOffset
+Gets the start offset (in seconds) of the time segment (relative to the beginning of the record).
+De c l arati on
+int StartOffset { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Int32
+
+TotalD uration
+Gets the total duration (in seconds) of the time segment (from start to end offset).
+De c l arati on
+int TotalDuration { get; }
+P r o p e r t y Va l u e
+T YPE
+
+System.Int32
+
+D ES CR IPTIO N
+
+Interface IComTimeSegmentList
+Provides access to a list of time segments.
+N am e spac e : Fle x C om A pi
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public interface IComTimeSegmentList
+
+Methods
+G etAt ( I nt32 )
+Gets the item at the given index in the list.
+De c l arati on
+IComTimeSegment GetAt(int index)
+Param e te rs
+T YPE
+
+NAME
+
+System.Int32
+
+index
+
+D ES CR IPTIO N
+
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+IComTimeSegment
+
+G etCount ()
+Gets the number of items in the list.
+De c l arati on
+int GetCount()
+Re turns
+T YPE
+
+System.Int32
+
+D ES CR IPTIO N
+
+Interface IComWaveformChannelData
+Provides access to waveform data and channel information.
+N am e spac e : Fle x C om A pi
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public interface IComWaveformChannelData
+
+P roperties
+ChannelName
+Gets the name of the channel.
+De c l arati on
+string ChannelName { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.String
+
+D ata
+Gets the array of data points for the waveform.
+De c l arati on
+float[] Data { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Single[]
+
+EndOffset
+Gets the end offset (in seconds) of the waveform data (relative to the beginning of the record).
+De c l arati on
+int EndOffset { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Int32
+
+H ighCutFilter
+Gets the frequency of any high cut filter applied to the data channel by hardware.
+A value of 0 indicates that no filter was applied.
+De c l arati on
+double HighCutFilter { get; }
+P r o p e r t y Va l u e
+
+T YPE
+
+D ES CR IPTIO N
+
+System.Double
+
+LowCutFitler
+Gets the frequency of any low cut filter applied to the data channel by hardware.
+A value of 0 indicates that no filter was applied.
+De c l arati on
+double LowCutFitler { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Double
+
+NotchFilter
+Gets the frequency of any notch filter applied to the data channel by hardware.
+A value of 0 indicates that no filter was applied.
+De c l arati on
+double NotchFilter { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Double
+
+SampleCount
+Gets the number of data points acquired.
+De c l arati on
+int SampleCount { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Int32
+
+SamplePeriodI nMS
+Gets the time interval between each data point (in milliseconds).
+De c l arati on
+int SamplePeriodInMS { get; }
+P r o p e r t y Va l u e
+T YPE
+
+D ES CR IPTIO N
+
+System.Int32
+
+StartOffset
+Gets the start offset (in seconds) of the waveform data (relative to the beginning of the record).
+
+De c l arati on
+int StartOffset { get; }
+P r o p e r t y Va l u e
+T YPE
+
+System.Int32
+
+D ES CR IPTIO N
+
+Interface IComWaveformChannelData2
+Provides access to waveform data and channel information.
+Inhe ri te d Me m be rs
+
+IComWaveformChannelData.ChannelName
+IComWaveformChannelData.Data
+IComWaveformChannelData.EndOffset
+IComWaveformChannelData.HighCutFilter
+IComWaveformChannelData.LowCutFitler
+IComWaveformChannelData.NotchFilter
+IComWaveformChannelData.SampleCount
+IComWaveformChannelData.SamplePeriodInMS
+IComWaveformChannelData.StartOffset
+N am e spac e : Fle x C om A pi
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public interface IComWaveformChannelData2 : IComWaveformChannelData
+
+P roperties
+SamplePeriodI nMS AsD ouble
+Gets the time interval between each data point (in milliseconds).
+De c l arati on
+double SamplePeriodInMSAsDouble { get; }
+P r o p e r t y Va l u e
+T YPE
+
+System.Double
+
+D ES CR IPTIO N
+
+Interface IComWaveformData
+Provides access to a list of waveform data and channel information.
+N am e spac e : Fle x C om A pi
+A sse m b ly : A r c .A p i.d ll
+
+Sy n t a x
+public interface IComWaveformData
+
+Methods
+G etAt ( I nt32 )
+Gets the item at the given index in the list.
+De c l arati on
+IComWaveformChannelData GetAt(int index)
+Param e te rs
+T YPE
+
+NAME
+
+System.Int32
+
+index
+
+D ES CR IPTIO N
+
+Re turns
+T YPE
+
+D ES CR IPTIO N
+
+IComWaveformChannelData
+
+G etCount ()
+Gets the number of items in the list.
+De c l arati on
+int GetCount()
+Re turns
+T YPE
+
+System.Int32
+
+D ES CR IPTIO N
+
+
